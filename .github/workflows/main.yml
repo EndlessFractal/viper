@@ -22,27 +22,25 @@ jobs:
     
     steps:
       # Check-out repository
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v3.3.0
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v4.4.0
         with:
           python-version: '3.11' # Version range or exact version of a Python version to use, using SemVer's version range syntax
-          architecture: 'x64' # optional x64 or x86. Defaults to x64 if not specified
+          architecture: 'x64' # optional x64 or x86.
 
       # Install dependencies
       - name: Install Dependencies
-        run: |
-          pip install -r requirements.txt 
+        run: pip install -r requirements.txt 
       
       # Build python script into a stand-alone exe
-      - uses: jimkring/python-script-to-exe@v0.2.0
+      - uses: Nuitka/Nuitka-Action@v0.4
         with:
           script-name: entropy.py
-          onefile: true
   
       # Uploads artifacts
       - name: "Upload Artifacts"
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v3.1.2
         with:
           name: ${{ runner.os }} Build
           path: |
