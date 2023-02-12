@@ -23,7 +23,7 @@ def game():
     white = (255, 255, 255)
     black = (0, 0, 0)
     red = (255, 0, 0)
-    green = (0, 255, 0)
+    blue = (0, 255, 255)
 
     # Set snake block size and initial position
     block_size = 10
@@ -161,7 +161,7 @@ def game():
 
         # Draw food
         for food in food_rects:
-            pygame.draw.rect(screen, green, food)
+            pygame.draw.rect(screen, blue, food)
 
         # Display score
         show_score(score)
