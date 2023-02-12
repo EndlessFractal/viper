@@ -41,7 +41,7 @@ jobs:
         with:
           script-name: viper.py
           onefile: true
-          disable-console: true
+          disable-console: false
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v3.1.2
