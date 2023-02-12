@@ -1,10 +1,10 @@
 import os
 import platform
 import random
-import urllib.request
-from collections import deque
 import subprocess
 import threading
+import urllib.request
+from collections import deque
 
 import pygame
 
@@ -47,7 +47,7 @@ def game():
     score = 0
 
     # Set font for displaying score
-    font_style = pygame.font.SysFont(None, 50)
+    font_style = pygame.font.SysFont("Arial", 20)
 
     # Create a list to store food rects
     food_rects = []
