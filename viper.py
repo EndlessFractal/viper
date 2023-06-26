@@ -2,17 +2,22 @@ import os
 import platform
 import random
 import subprocess
+import sys
 import threading
 import urllib.request
 from collections import deque
 
 import pygame
 
+
+def resource_path(*paths):
+    base_path = getattr(sys, '_MEIPASS', os.getcwd())
+    return os.path.join(base_path, *paths)
+
 def game():
     # Initialize pygame and set screen size
     pygame.init()
-    width = 500
-    height = 500
+    width, height = 500, 500
     screen = pygame.display.set_mode((width, height))
     pygame.display.set_caption("Portal Snake")
 
@@ -25,7 +30,6 @@ def game():
     blue = (0, 255, 255)
 
     # Set snake block size and initial position
-    background_path = os.path.join(sys._MEIPASS, 'resources', 'background.png')
     block_size = 10
     snake_rect = pygame.Rect(width // 2, height // 2, block_size, block_size)
 
@@ -47,19 +51,20 @@ def game():
     def draw_tiled_background(screen, background_surface):
         screen.blit(background_surface, (0, 0))
 
+    background_path = resource_path('resources', 'background.png')
     background_surface = create_tiled_background(background_path, block_size, width, height)
 
     # Load music and sfx paths
-    audio = os.path.join(sys._MEIPASS, 'resources', 'music.mp3')
-    sound = os.path.join(sys._MEIPASS, 'resources', 'eat.mp3')
-    
+    audio_path = resource_path('resources', 'music.mp3')
+    sound_path = resource_path('resources', 'eat.mp3')
+
     # Play music continuously
-    pygame.mixer.music.load(audio)
+    pygame.mixer.music.load(audio_path)
     pygame.mixer.music.set_volume(0.3)
     pygame.mixer.music.play(loops=-1)
 
     # Load eat sfx
-    sfx = pygame.mixer.Sound(sound)
+    sfx = pygame.mixer.Sound(sound_path)
     sfx.set_volume(1.0)
 
     # Set initial direction
@@ -69,7 +74,7 @@ def game():
     # Set snake's body as a deque of rects
     snake_body = deque()
     snake_length = 3
-    for i in range(snake_length):
+    for _ in range(snake_length):
         snake_body.appendleft(snake_rect.copy())
 
     # Set the speed of the snake
@@ -87,7 +92,7 @@ def game():
     # Function to generate food at random locations
     def generate_food():
         if len(food_rects) == 0:
-            for i in range(5):
+            for _ in range(5):
                 food_rect = pygame.Rect(
                     round(random.randrange(0, width - block_size) / block_size) * block_size,
                     round(random.randrange(0, height - block_size) / block_size) * block_size,
@@ -95,15 +100,9 @@ def game():
                     block_size,
                 )
                 # Check if food is going to be generated inside snake
-                food_collision = False
-                for snake_block in snake_body:
-                    if snake_block.colliderect(food_rect):
-                        food_collision = True
-                        break
+                food_collision = any(snake_block.colliderect(food_rect) for snake_block in snake_body)
                 if not food_collision:
                     food_rects.append(food_rect)
-                else:
-                    i -= 1
 
     # Function to display score on screen
     def show_score(score):
@@ -131,7 +130,7 @@ def game():
             elif event.type == pygame.KEYDOWN:
                 key_queue.append(event.key)
 
-        while len(key_queue) > 0:
+        while key_queue:
             key = key_queue.pop(0)
             if key == pygame.K_LEFT and last_direction != "right":
                 direction = "left"
@@ -142,24 +141,23 @@ def game():
             elif key == pygame.K_DOWN and last_direction != "up":
                 direction = "down"
 
-        # Move snake and wrap around screen
+        # Move snake and wrap around screen with boundary checks
         if direction == "right":
             snake_rect.x += block_size
+            if snake_rect.x >= width:
+                snake_rect.x = 0
         elif direction == "left":
             snake_rect.x -= block_size
+            if snake_rect.x < 0:
+                snake_rect.x = width - block_size
         elif direction == "up":
             snake_rect.y -= block_size
+            if snake_rect.y < 0:
+                snake_rect.y = height - block_size
         elif direction == "down":
             snake_rect.y += block_size
-
-        if snake_rect.x > width:
-            snake_rect.x = 0
-        elif snake_rect.x < 0:
-            snake_rect.x = width
-        elif snake_rect.y > height:
-            snake_rect.y = 0
-        elif snake_rect.y < 0:
-            snake_rect.y = height
+            if snake_rect.y >= height:
+                snake_rect.y = 0
 
         last_direction = direction
 
@@ -177,9 +175,8 @@ def game():
                 break
 
         # Check for collision with body
-        for i in range(len(snake_body) - 1):
-            if snake_rect.colliderect(snake_body[i + 1]):
-                game_over()
+        if any(snake_rect.colliderect(snake_block) for snake_block in list(snake_body)[1:]):
+            game_over()
 
         # Move the snake body
         snake_body.appendleft(snake_rect.copy())
